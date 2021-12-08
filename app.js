@@ -1,24 +1,43 @@
-const express = require("express");
-const app = express();
+const express = require('express');
+const monggose = require('mongoose');
 const port = 3000;
-const connect = require("./models");
-connect();
-const middleware = require("./middlewares/auth-middleware");
-const CommentLikeRouter = require("./routes/comment");
+const bodyParser = require('body-parser');
+const cookieParser= require('cookie-parser');
+const app = express();
+//DB연결
+const connect = monggose.connect("mongodb://localhost:27017/ZZAL",{
+    useNewUrlParser: true, useUnifiedTopology: true
+  })
+  .then(() => console.log('MongoDB Connected...'))
+  .catch(err => console.log(err));
+                
+//cors origin에 fornt 주소 넣기
+const cors = require('cors');
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true
+}
+app.use(cors(corsOptions));
+  
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
+//json데이터 받기위해
+// support parsing of application/json type post data
+app.use(bodyParser.json());
+app.use(cookieParser());
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// 정적 파일 불러오기(업로드 테스트용)
+app.use(express.static(__dirname + "/public"));
 
-app.use("/api", [CommentLikeRouter]);
-// app.set("views", __dirname + "/views");
-// app.set("view engine", "ejs");
-
+// 라우팅 정의
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/views/tag.html");
+});
+//route
+app.use('/api/posts', require('./routes/post'))
+app.use('/api/users', require('./routes/user'))
 app.use('/api/comment', require('./routes/comment'))
 
-app.get("/", (req,res) => {
-  res.render("index");
-});
-
 app.listen(port, () => {
-  console.log(`listening at http://localhost:${port}`);
-});
+    console.log(`Server Listening on ${port}`)
+  });

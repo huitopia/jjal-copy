@@ -1,7 +1,7 @@
 const express = require("express");
 const Comment = require("../models/comments");
-const Like = require("../models/likes");
-const middleware = require("../middlewares/auth-middleware");
+//const Like = require("../models/likes");
+const middleware = require("../middleware/auth-middleware");
 const router = express.Router();
 
 // 댓글 작성
@@ -49,7 +49,7 @@ router.delete("/comment/:commentId", middleware, async (req, res) => {
 })
 
 // 댓글 수정
-router.put("/comment", middleware, async (req, res) => {
+router.put("/comment/:commentId", middleware, async (req, res) => {
   const { user } = res.locals
   const { commentId, commentVal } = req.body
   const tokenUserId = user["userId"]
