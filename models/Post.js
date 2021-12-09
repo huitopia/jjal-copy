@@ -4,9 +4,9 @@ const Schema = monggose.Schema;
 //test
 const postSchema = monggose.Schema({
     //userID
-    writer:{
-        type:Schema.Types.ObjectId,
-        ref:'User'
+    userID:{
+        type:String,
+        required:true
     },
     description:{
         type:String,
@@ -27,8 +27,7 @@ const postSchema = monggose.Schema({
     // 좋아요
     postLikeCnt: {
       type: Number,
-      required: true,
-      unique: false,
+      default:0
     },
     createdAt:{
         type:Date,

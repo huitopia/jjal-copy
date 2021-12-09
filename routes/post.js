@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const Post = require('../models/Post')
 const Comment = require('../models/Comments');
-//const middleware = require("../middleware/auth-middleware");//권한 미들웨어 받아와서 적용해야함 , 로그인한 유저만 글을 포스팅 가능
+const middleware = require("../middleware/auth-middleware");//권한 미들웨어 받아와서 적용해야함 , 로그인한 유저만 글을 포스팅 가능
 
 //Storage multer 
 let storage = multer.diskStorage({
@@ -49,17 +49,13 @@ router.post('/uploadfile', (req, res)=>{  //req는 클라이언트에서 보내�
 })
 //사용자 정보 쿠키로 넘기면 클라이언트에서 받아주고 세션이면 서버에서 받기
 //짤파일 정보저장
-router.post('/',(req, res)=>{
+router.post('/',middleware, async (req, res)=>{
     try{
-        // const { userId } = res.locals; // 만약 클라이언트 단에서 유저정보를 안넘겨주면 middleware에서 res.locals에 담아온 user할당 
-        // if(!userId){
-        //     res.send(400).send({errormessage:'로그인한 사용자만 파일 업로드가 가능합니다.'})
-        // }else{}
         const video = new Post(req.body)  //req.body 안에 클라이언트에서 보낸 모든 variable 가져옴 (유저아이디까지 넘겨준 상황)
-        video.save((err, doc)=>{
-            if(err) return res.json({success:false, err})
-                            .send({errormessage:"파일 업로드 중 오류가 발생했습니다."})
-            res.status(200).json({success:true})
+            await video.save((err, doc)=>{
+                if(err) return res.json({success:false, err})
+                                .send({errormessage:"파일 업로드 중 오류가 발생했습니다."})
+                res.status(200).json({success:true})
         })
     }catch(error){
         res.status(400).send({
@@ -67,6 +63,7 @@ router.post('/',(req, res)=>{
         });
         console.log(error)
     }
+    return;
     
 })
 
@@ -128,7 +125,7 @@ router.post('/search/tag', async(req, res)=>{
 })
 
 //삭제
-router.delete('/:postId', async (req, res)=>{
+router.delete('/:postId',middleware, async (req, res)=>{
     const {postId} = req.params;  //{postId}로 구조분해 할당해주면 object값 자체가 아닌 value값만 받을 수 잇다.
     try{
         await Post.findByIdAndDelete(postId);

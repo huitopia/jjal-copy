@@ -89,9 +89,7 @@ router.post("/auth", async (req, res) => {
         userId, 
         token
     })
-    res.cookie('token', token, { httpOnly: true });
 });
-//로그아웃
 
 
 module.exports = router;

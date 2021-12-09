@@ -5,9 +5,9 @@ const Post = require('../models/Post');
 const middleware = require('../middleware/auth-middleware');
 
 // 해당 게시물 좋아요 추가 기능
-router.post('/:postId', middleware, async (req, res) => {
-  const { postId } = req.params;
-  const userId = req.user.userId;
+router.post('/likes', middleware, async (req, res) => {
+  const { postId } = req.body;
+  const {userId} = req.body;     //body값으로 받기
   try {
     await Like.create({ userId, postId });
     const post = await Post.findOne({ postId }, { _id: false }); // 게시물 카운터
@@ -26,9 +26,9 @@ router.post('/:postId', middleware, async (req, res) => {
 });
 
 //좋아요 취소 기능
-router.delete('/:postId', middleware, async (req, res) => {
-  const { postId } = req.params;
-  const userId = req.user.userId;
+router.delete('/likes', middleware, async (req, res) => {
+  const { postId } = req.body;
+  const {userId} = req.body;
   try {
     await Like.deleteOne({ userId, postId });
     const post = await Post.findOne({ postId }, { _id: false });

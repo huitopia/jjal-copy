@@ -5,7 +5,7 @@ const config = require('../config/dev');
 // 로그인되어있는 토큰을 가져와 유저정보를 담아주는 middleware
 module.exports = (req, res, next) => {
   const { authorization } = req.headers; 
-  const [tokenType, tokenValue] = authorization.split(" "); // Token을 분리해서 배열에 할당
+  const [tokenType, tokenValue] = (authorization || "").split(" ");
 
   if (tokenType !== "Bearer") {
     res.status(401).send({
