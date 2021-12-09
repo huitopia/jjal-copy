@@ -1,24 +1,34 @@
 const express = require("express");
 const Comment = require("../models/Comments");
+//const Like = require("../models/likes");
 const middleware = require("../middleware/auth-middleware");
 const router = express.Router();
 
 // 댓글 작성
-router.post('/comment', middleware, async (req, res) => {
-  const { postId } = req.body
-  const { user } = res.locals
-  const userId = user["userId"]
-  const recentComment = await Comment.find().sort("-commentId").limit(1);
+router.post('/comment',  async (req, res) => {
+  try{
+    //const post= req.body
+    const {postId} = req.body
+    const { commentVal } = req.body
+    const {userId} = req.body  //userId는 또 그냥 String으로 받을 수 있다 나는 이해가 안된다.....
+    //console.log(post, commentVal);
+    // const { user } = res.locals
+    // const userId = user["userId"]
 
-  let commentId = 1
-  if (recentComment.length != 0) {
-    commentId = recentComment[0]["commentId"] + 1
+    const recentComment = await Comment.find().sort("-commentId").limit(1);
+
+    let commentId = 1
+    if (recentComment.length != 0) {
+      commentId = recentComment[0]["commentId"] + 1
+    }
+    
+    await Comment.create({ commentId, postId,userId, commentVal })
+    res.send({ result: "success "})
+  }catch(error){
+    res.send(error)
+    console.log(error);
   }
-  const { commentVal } = req.body
-
-  const date = (new Date().format("yyyy-MM-dd a/p hh:mm:ss"))
-  await Comment.create({ commentId, postId, userId, commentVal, date })
-  res.send({ result: "success "})
+  return;
 })
 
 // 댓글 불러오기

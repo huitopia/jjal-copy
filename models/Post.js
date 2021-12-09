@@ -20,6 +20,11 @@ const postSchema = monggose.Schema({
         type:Number,
         default:0
     },
+    commentCnt:{
+        type:Number,
+        default:0
+    },
+    // 좋아요
     postLikeCnt: {
       type: Number,
       required: true,

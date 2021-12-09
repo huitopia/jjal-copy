@@ -12,16 +12,15 @@ const commentSchema = new Schema({
     required: true,
   },
   postId: {
-    type: Number,
-    required: true,
+   type: mongoose.Schema.Types.ObjectId, ref: 'post', required: true 
   },
   commentVal: {
     type: String,
     required: true,
   },
   date: {
-    type: String,
-    required: true,
+    type:Date,
+    default:Date.now
   }
 })
 module.exports = mongoose.model("Comment", commentSchema);

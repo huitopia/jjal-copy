@@ -1,23 +1,23 @@
 const express = require('express');
-const monggose = require('mongoose');
-const port = 3000;
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser= require('cookie-parser');
+const config = require('./config/dev');
 const app = express();
 //DB연결
-const connect = monggose.connect("mongodb://localhost:27017/ZZAL",{
+const connect = mongoose.connect(config.mongoURI,{
     useNewUrlParser: true, useUnifiedTopology: true
   })
   .then(() => console.log('MongoDB Connected...'))
   .catch(err => console.log(err));
                 
-//cors origin에 fornt 주소 넣기
+//cors origin에 fornt 주소 넣기 
 const cors = require('cors');
-const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true
-}
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   credentials: true
+// }
+app.use(cors());
   
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
@@ -37,7 +37,10 @@ app.get("/", (req, res) => {
 app.use('/api/posts', require('./routes/post'))
 app.use('/api/users', require('./routes/user'))
 app.use('/api/comment', require('./routes/comment'))
+app.use('/api/like', require('./routes/like'))
 
+
+const port = 3000;
 app.listen(port, () => {
     console.log(`Server Listening on ${port}`)
   });
