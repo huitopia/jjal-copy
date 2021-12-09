@@ -20,10 +20,10 @@ const postSchema = monggose.Schema({
         type:Number,
         default:0
     },
-    //좋아요 count  ?필요한가 ??
-    likesCnt:{
-        type:Number,
-        default:0
+    postLikeCnt: {
+      type: Number,
+      required: true,
+      unique: false,
     },
     createdAt:{
         type:Date,

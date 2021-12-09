@@ -1,6 +1,5 @@
 const express = require("express");
-const Comment = require("../models/comments");
-//const Like = require("../models/likes");
+const Comment = require("../models/Comments");
 const middleware = require("../middleware/auth-middleware");
 const router = express.Router();
 

@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  userID: {
-    type:String
-  },
-  password: String,
+  userID: String,
+  password: String
 });
 
 UserSchema.virtual("userId").get(function () {
@@ -17,4 +15,4 @@ UserSchema.set("toJSON", {
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = { User }
+module.exports = User
