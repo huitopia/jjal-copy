@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const Post = require('../models/Post')
 const Comment = require('../models/Comments');
-const middleware = require("../middleware/auth-middleware");//권한 미들웨어 받아와서 적용해야함 , 로그인한 유저만 글을 포스팅 가능
+const middleware = require('../middleware/auth-middleware');//권한 미들웨어 받아와서 적용해야함 , 로그인한 유저만 글을 포스팅 가능
 
 //Storage multer 
 let storage = multer.diskStorage({
@@ -33,7 +33,10 @@ router.post('/uploadfile', (req, res)=>{  //req는 클라이언트에서 보내�
         upload(req, res, err=>{
             if(err){
                 return res.send({errormessage:"파일 업로드 중 오류가 발생했습니다."})
+            }else{
+                
             }
+
             return res.json({succes:true,      //성공하면 파일경로, 파일 이름 클라이언트로
                 url:res.req.file.path,  //path랑 
                 fileName: res.req.file.filename //filename
@@ -47,8 +50,8 @@ router.post('/uploadfile', (req, res)=>{  //req는 클라이언트에서 보내�
     }
     
 })
-//사용자 정보 쿠키로 넘기면 클라이언트에서 받아주고 세션이면 서버에서 받기
-//짤파일 정보저장
+// 사용자 정보 쿠키로 넘기면 클라이언트에서 받아주고 세션이면 서버에서 받기
+// 짤파일 정보저장
 router.post('/',middleware, async (req, res)=>{
     try{
         const video = new Post(req.body)  //req.body 안에 클라이언트에서 보낸 모든 variable 가져옴 (유저아이디까지 넘겨준 상황)
@@ -66,29 +69,28 @@ router.post('/',middleware, async (req, res)=>{
     return;
     
 })
-
 //메인페이지 리스트
-router.get('/', async(req, res)=>{
-    let page = req.query['page'];  //쿼리파리미터로 페이지 받아오기
+router.post('/lists', async(req, res)=>{
+    let {page} = req.body;  //바디로 받아옴 페이지 받아오기
     page = page || 1 
     console.log(page)
     
     try{
         const posts = await Post.find({})
             .sort({createdAt:-1})  //생성순으로 정렬, 조회수로 변경할건지 논의 할것
-            .skip((page-1)*20)   //20개씩 빼고 보여줌 
-            .limit(20)        //20개씩 보여줌 
-        if(posts.length ==0){     
-            res.send({next:false}) 
-        }else{
-            let postId = posts._id;
-            const comment = await Comment.find({postId})
-            const commentCnt = comment.length;
-            Post.update({_id:postId}, {$set:{commentCnt:commentCnt}});
-            res.send({posts})     //클라이언트에 post객체 response
-            console.log(posts, commentCnt)
-            
-        }
+            .skip((page-1)*2)   //20개씩 빼고 보여줌 
+            .limit(2)        //20개씩 보여줌 
+        let postId = posts._id;
+        const comment = await Comment.find({postId})
+        const commentCnt = comment.length;
+        await Post.updateOne({_id:postId}, {$set:{commentCnt:commentCnt}});
+        
+            if(posts.length !==2){
+                res.send({posts, next:false}) 
+            }else if(posts.length <=2){
+                res.send({posts, next:true})  
+            }
+        
     }catch(error){
         res.status(400).send({
             errormessage:"포스트를 불러오는 중 오류가 발생"
@@ -97,17 +99,19 @@ router.get('/', async(req, res)=>{
     }
 });
 //상세페이지
-router.get('/:postId', async (req, res)=>{
-    const {postId} = req.params; //{} 비구조화 할당, [] 구조분해 할당
+router.post('/details', async (req, res)=>{
+    const {postId} = req.body; //{} 비구조화 할당, [] 구조분해 할당
     try{
         let post = await Post.findById(postId);  //모든 정보를넘기면 필요한 거만 가져가서 사용 가능한가...
+       // console.log(post)
+        console.log(post.viewsCnt);
         post.viewsCnt++;  //상세페이지 들어올때마다 1씩 증가
         post.save();
         console.log(post.viewsCnt);
         res.json({post});
         
     }catch(error){
-        res.status(400).send({errormessage:"포스트를 불러오는 중 오류가 발생"})
+        res.send({errormessage:"더이상 포스트가 없습니다"})
         console.log(error);
     }
 })
@@ -125,11 +129,21 @@ router.post('/search/tag', async(req, res)=>{
 })
 
 //삭제
-router.delete('/:postId',middleware, async (req, res)=>{
-    const {postId} = req.params;  //{postId}로 구조분해 할당해주면 object값 자체가 아닌 value값만 받을 수 잇다.
+router.delete('/',middleware, async (req, res)=>{
+    const {postId} = req.body;  //{postId}로 구조분해 할당해주면 object값 자체가 아닌 value값만 받을 수 잇다. object아이디임 
+    const {userID} = req.body;
     try{
-        await Post.findByIdAndDelete(postId);
-        res.send({succes:true})
+        const db_user = Post.find({'_id':postId}).where('userID').equals(userID);
+        console.log(db_user)
+        if(db_user){
+            console.log('ajaa')
+           await Post.findOneAndDelete(postId);  
+           await Comment.deleteMany({ postId: postId });
+           res.send({success:true})
+  
+        }else{
+            res.send({errormessage:"본인의 게시글만 삭제가 가능합니다."})
+        }
     }catch(error){
         res.status(400).send({errormessage:"삭제중 오류가 발생했습니다."})
         console.log(error);
