@@ -78,16 +78,16 @@ router.post('/lists', async(req, res)=>{
     try{
         const posts = await Post.find({})
             .sort({createdAt:-1})  //생성순으로 정렬, 조회수로 변경할건지 논의 할것
-            .skip((page-1)*2)   //20개씩 빼고 보여줌 
-            .limit(2)        //20개씩 보여줌 
+            .skip((page-1)*20)   //20개씩 빼고 보여줌 
+            .limit(20)        //20개씩 보여줌 
         let postId = posts._id;
         const comment = await Comment.find({postId})
         const commentCnt = comment.length;
         await Post.updateOne({_id:postId}, {$set:{commentCnt:commentCnt}});
         
-            if(posts.length !==2){
+            if(posts.length !==20){
                 res.send({posts, next:false}) 
-            }else if(posts.length <=2){
+            }else if(posts.length <=20){
                 res.send({posts, next:true})  
             }
         
@@ -103,7 +103,7 @@ router.post('/details', async (req, res)=>{
     const {postId} = req.body; //{} 비구조화 할당, [] 구조분해 할당
     try{
         let post = await Post.findById(postId);  //모든 정보를넘기면 필요한 거만 가져가서 사용 가능한가...
-       // console.log(post)
+        console.log(post)
         console.log(post.viewsCnt);
         post.viewsCnt++;  //상세페이지 들어올때마다 1씩 증가
         post.save();

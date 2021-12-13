@@ -6,8 +6,9 @@ const commentSchema = new Schema({
     type: Number,
     required: true,
     unique: true,
+    default:0
   },
-  userId: {
+  userID: {
     type: String,
     required: true,
   },

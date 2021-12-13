@@ -12,7 +12,7 @@ router.post('/likes', middleware, async (req, res) => {
     await Like.create({ userId, postId });
     const post = await Post.findOne({ postId }, { _id: false }); // 게시물 카운터
     const postLikeCnt = post.postLikeCnt + 1;
-
+    console.log(postLikeCnt);
     await Post.updateOne({ postId }, { $set: { postLikeCnt } });
     return res
       .status(200)

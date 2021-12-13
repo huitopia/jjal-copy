@@ -14,7 +14,7 @@ const connect = mongoose.connect(config.mongoURI,{
 //cors origin에 fornt 주소 넣기 
 const cors = require('cors');
 // const corsOptions = {
-//   origin: "http://localhost:3000",
+//   origin: "http://chansoo.shop",
 //   credentials: true
 // }
 app.use(cors());
