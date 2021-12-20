@@ -1,4 +1,4 @@
-# JJal
+# JJal - https://github.com/99-6W-6/JJal_backend
 ### 🛠 사용 기술
 #### Languages
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
